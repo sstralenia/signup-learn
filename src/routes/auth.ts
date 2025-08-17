@@ -184,7 +184,7 @@ router.post('/refresh', authenticateToken, async (ctx: RouterContext) => {
     const newToken = jwt.sign(
       { userId: user.id, email: user.email },
       JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN }
+      { expiresIn: JWT_EXPIRES_IN as any }
     );
     
     // Set new JWT token as HTTP-only cookie
