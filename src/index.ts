@@ -41,9 +41,6 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on http://localhost:${PORT}`);
-  console.log(`📝 API Documentation:`);
-  console.log(`   POST /api/auth/signup - User registration`);
-  console.log(`   POST /api/auth/signin - User authentication`);
 });
 
 export default app;
