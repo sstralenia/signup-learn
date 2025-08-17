@@ -9,11 +9,12 @@ const router = new Router({ prefix: '/auth' });
 const authService = new AuthService();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-const JWT_EXPIRES_IN = '24h'; // Default expiration for new token
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
+const AUTH_COOKIE_KEY = process.env.AUTH_COOKIE_KEY || 'auth_token';
 
 // Middleware to authenticate JWT token from cookies
 const authenticateToken = async (ctx: RouterContext, next: () => Promise<any>) => {
-  const token = ctx.cookies.get('auth_token');
+  const token = ctx.cookies.get(AUTH_COOKIE_KEY);
   
   if (!token) {
     ctx.status = 401;
@@ -72,7 +73,7 @@ router.post('/signup', validateRequest(signupSchema), async (ctx: RouterContext)
     const result = await authService.signup(userData);
     
     // Set JWT token as HTTP-only cookie
-    ctx.cookies.set('auth_token', result.token, {
+    ctx.cookies.set(AUTH_COOKIE_KEY, result.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production', // Only send over HTTPS in production
       sameSite: 'strict',
@@ -113,7 +114,7 @@ router.post('/signin', validateRequest(signinSchema), async (ctx: RouterContext)
     const result = await authService.signin(credentials);
     
     // Set JWT token as HTTP-only cookie
-    ctx.cookies.set('auth_token', result.token, {
+    ctx.cookies.set(AUTH_COOKIE_KEY, result.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production', // Only send over HTTPS in production
       sameSite: 'strict',
@@ -147,9 +148,9 @@ router.post('/signin', validateRequest(signinSchema), async (ctx: RouterContext)
 });
 
 // Logout route
-router.post('/logout', async (ctx: RouterContext) => {
+router.post('/signout', async (ctx: RouterContext) => {
   // Clear the auth token cookie
-  ctx.cookies.set('auth_token', '', {
+  ctx.cookies.set(AUTH_COOKIE_KEY, '', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
@@ -187,7 +188,7 @@ router.post('/refresh', authenticateToken, async (ctx: RouterContext) => {
     );
     
     // Set new JWT token as HTTP-only cookie
-    ctx.cookies.set('auth_token', newToken, {
+    ctx.cookies.set(AUTH_COOKIE_KEY, newToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
@@ -210,7 +211,7 @@ router.post('/refresh', authenticateToken, async (ctx: RouterContext) => {
 });
 
 // Get current user profile (protected route)
-router.get('/profile', authenticateToken, async (ctx: RouterContext) => {
+router.get('/me', authenticateToken, async (ctx: RouterContext) => {
   try {
     const userId = ctx.state.user.userId;
     const user = await authService.getUserById(userId);

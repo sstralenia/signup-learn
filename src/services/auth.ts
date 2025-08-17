@@ -3,12 +3,10 @@ import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { User, SignupRequest, SigninRequest, AuthResponse } from '../types/auth';
 
-// In-memory storage for demo purposes
-// In production, you'd use a database
 const users: User[] = [];
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-const JWT_EXPIRES_IN = '24h';
+const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN || '24h') as string;
 
 export class AuthService {
   async signup(userData: SignupRequest): Promise<{ user: Omit<User, 'passwordHash'>, token: string }> {

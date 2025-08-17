@@ -1,9 +1,13 @@
+import dotenv from 'dotenv';
 import Koa from 'koa';
 import Router from 'koa-router';
 import bodyParser from 'koa-bodyparser';
 import cors from 'koa-cors';
 import authRoutes from './routes/auth';
 import systemRoutes from './routes/system';
+
+// Load environment variables
+dotenv.config();
 
 const app = new Koa();
 const router = new Router();
